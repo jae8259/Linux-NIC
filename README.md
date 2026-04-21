@@ -27,11 +27,24 @@ Results are written to `results/raw/*.json`.
 
 See also:
 - `docs/ENVIRONMENT.md`
+- `docs/HELPERS.md`
 - `results/README.md`
 
 ## Dev container (optional)
 
 - `docker compose -f docker/compose.yaml run --rm dev`
+
+## Nix flake (optional)
+
+- Enter dev shell: `nix develop`
+- Then build/test:
+  - `make all`
+  - `make test`
+
+On Linux, if you run privileged commands through `sudo`, preserve the shell PATH:
+
+- `sudo env PATH=$PATH make bench-veth`
+- `sudo env PATH=$PATH make matrix`
 
 ## Mac + Ubuntu workflow
 

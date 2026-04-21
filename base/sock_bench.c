@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -60,6 +61,7 @@ int main(int argc, char **argv) {
   int port = 7777;
   size_t size = 64;
   uint64_t iters = 100000;
+  int timeout_ms = 2000;
   const char *out_path = NULL;
 
   for (int i = 1; i < argc; i++) {
@@ -71,6 +73,8 @@ int main(int argc, char **argv) {
       size = (size_t)strtoul(argv[++i], NULL, 10);
     } else if (streq(argv[i], "--iters") && i + 1 < argc) {
       iters = strtoull(argv[++i], NULL, 10);
+    } else if (streq(argv[i], "--timeout-ms") && i + 1 < argc) {
+      timeout_ms = atoi(argv[++i]);
     } else if (streq(argv[i], "--out") && i + 1 < argc) {
       out_path = argv[++i];
     } else if (streq(argv[i], "-h") || streq(argv[i], "--help")) {
@@ -94,6 +98,13 @@ int main(int argc, char **argv) {
   int fd = socket(AF_INET, SOCK_DGRAM, 0);
   if (fd < 0)
     die("socket");
+  if (timeout_ms > 0) {
+    struct timeval tv;
+    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_usec = (timeout_ms % 1000) * 1000;
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0)
+      die("setsockopt(SO_RCVTIMEO)");
+  }
 
   struct sockaddr_in peer;
   memset(&peer, 0, sizeof(peer));
@@ -163,10 +174,11 @@ int main(int argc, char **argv) {
           "\"port\":%d,"
           "\"size\":%zu,"
           "\"iters\":%" PRIu64 ","
+          "\"timeout_ms\":%d,"
           "\"rtt_ns\":{\"min\":%" PRIu64 ",\"p50\":%" PRIu64 ",\"p90\":%" PRIu64 ",\"p99\":%" PRIu64
           ",\"max\":%" PRIu64 "}"
           "}\n",
-          peer_ip, port, size, iters, min, p50, p90, p99, max);
+          peer_ip, port, size, iters, timeout_ms, min, p50, p90, p99, max);
 
   if (out != stdout)
     fclose(out);

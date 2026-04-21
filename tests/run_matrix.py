@@ -49,7 +49,12 @@ def parse_minimal_yaml_cases(text: str):
 
 def run(cmd, *, env=None, check=True):
     print("+", " ".join(cmd), flush=True)
-    return subprocess.run(cmd, env=env, check=check, text=True, capture_output=True)
+    proc = subprocess.run(cmd, env=env, check=check, text=True, capture_output=True)
+    if proc.stdout:
+        print(proc.stdout, end="")
+    if proc.stderr:
+        print(proc.stderr, end="", file=sys.stderr)
+    return proc
 
 
 def main():
@@ -91,6 +96,8 @@ def main():
                 env = os.environ.copy()
                 env["SIZE"] = str(size)
                 env["ITERS"] = str(iters)
+                env["CASE_ID"] = cid
+                env["OUT_PATH"] = str(out_path)
                 run(["bash", str(repo / "scripts" / "run_veth_bench.sh")], env=env)
                 ok += 1
             elif path == "shm":
@@ -101,6 +108,8 @@ def main():
                 env = os.environ.copy()
                 env["SIZE"] = str(size)
                 env["ITERS"] = str(iters)
+                env["CASE_ID"] = cid
+                env["OUT_PATH"] = str(out_path)
                 run(["bash", str(repo / "scripts" / "run_shm_bench.sh")], env=env)
                 ok += 1
             else:
@@ -125,4 +134,3 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
