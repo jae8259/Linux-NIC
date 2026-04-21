@@ -1,0 +1,18 @@
+cases:
+  - id: veth_udp_64
+    path: veth_udp
+    size: 64
+    iters: 50000
+  - id: veth_udp_1024
+    path: veth_udp
+    size: 1024
+    iters: 20000
+  - id: shm_64
+    path: shm
+    size: 64
+    iters: 200000
+  - id: shm_1024
+    path: shm
+    size: 1024
+    iters: 80000
+

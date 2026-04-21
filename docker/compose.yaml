@@ -1,0 +1,10 @@
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    working_dir: /work
+    volumes:
+      - ..:/work:rw
+    command: bash -lc "make all && bash"
+
